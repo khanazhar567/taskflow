@@ -79,12 +79,18 @@ const TaskForm = ({ initial, projectId, onSave, onClose }) => {
             className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         </div>
         <div>
-          <label htmlFor="task-assign" className="block text-sm font-medium text-gray-700 mb-1.5">Assign to</label>
-          <select id="task-assign" value={form.assignedTo} onChange={(e) => setForm({ ...form, assignedTo: e.target.value })}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="">Unassigned</option>
-            {users.map((u) => <option key={u._id} value={u._id}>{u.name}</option>)}
-          </select>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Assign to</label>
+          {user?.role === 'admin' ? (
+            <select id="task-assign" value={form.assignedTo} onChange={(e) => setForm({ ...form, assignedTo: e.target.value })}
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Unassigned</option>
+              {users.map((u) => <option key={u._id} value={u._id}>{u.name}</option>)}
+            </select>
+          ) : (
+            <div className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-700">
+              {user?.name} (you)
+            </div>
+          )}
         </div>
       </div>
       <div className="flex gap-3 justify-end">
