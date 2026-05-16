@@ -3,18 +3,12 @@ const Task = require('../models/Task');
 
 const getProjects = async (req, res) => {
   try {
-    let projects;
-    if (req.user.role === 'admin') {
-      projects = await Project.find()
-        .populate('createdBy', 'name email')
-        .populate('members', 'name email')
-        .sort({ createdAt: -1 });
-    } else {
-      projects = await Project.find({ members: req.user._id })
-        .populate('createdBy', 'name email')
-        .populate('members', 'name email')
-        .sort({ createdAt: -1 });
-    }
+    // All authenticated users can view all projects.
+    // The brief states standard users can "view all tasks" which requires project access.
+    const projects = await Project.find()
+      .populate('createdBy', 'name email')
+      .populate('members', 'name email')
+      .sort({ createdAt: -1 });
     res.json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });

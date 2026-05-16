@@ -55,10 +55,13 @@ const ProjectDetail = () => {
     socket.joinProject(id);
 
     const offCreated = socket.on('task:created', (task) => {
-      if (task.project?._id === id || task.project === id) {
-        setTasks((prev) => [task, ...prev.filter((t) => t._id !== task._id)]);
-        toast('New task added', { icon: '📋' });
-      }
+      const projectId = String(task.project?._id || task.project);
+      if (projectId !== String(id)) return;
+      setTasks((prev) => {
+        // If the creator already added it via handleCreate, skip to avoid duplicate
+        if (prev.some((t) => t._id === task._id)) return prev;
+        return [task, ...prev];
+      });
     });
     const offUpdated = socket.on('task:updated', (task) => {
       setTasks((prev) => prev.map((t) => (t._id === task._id ? task : t)));
