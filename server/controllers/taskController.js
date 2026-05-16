@@ -58,6 +58,10 @@ const createTask = async (req, res) => {
     if (!title || !project) {
       return res.status(400).json({ message: 'Title and project are required' });
     }
+    // Standard users are always assigned to themselves (enforced server-side)
+    const resolvedAssignedTo =
+      req.user.role !== 'admin' ? req.user._id : (assignedTo || null);
+
     const task = await Task.create({
       title,
       description: description || '',
@@ -65,7 +69,7 @@ const createTask = async (req, res) => {
       priority: priority || 'medium',
       status: status || 'todo',
       project,
-      assignedTo: assignedTo || null,
+      assignedTo: resolvedAssignedTo,
       createdBy: req.user._id,
     });
     const populated = await populateTask(Task.findById(task._id));
