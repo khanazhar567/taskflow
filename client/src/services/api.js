@@ -18,7 +18,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    // Only force-redirect when a previously-logged-in user's token has expired.
+    // If there is no user in localStorage the 401 came from the login endpoint
+    // itself (wrong credentials) — let the Login component handle that error.
+    if (err.response?.status === 401 && localStorage.getItem('taskflow_user')) {
       localStorage.removeItem('taskflow_user');
       window.location.href = '/login';
     }
