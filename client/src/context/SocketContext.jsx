@@ -11,7 +11,9 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user?.token) {
-      socketRef.current = io('/', { withCredentials: true });
+      // In production VITE_SOCKET_URL = https://taskflow-api.onrender.com
+      // In development '/' is proxied to localhost:5000 via Vite
+      socketRef.current = io(import.meta.env.VITE_SOCKET_URL || '/', { withCredentials: true });
       socketRef.current.on('connect', () => setConnected(true));
       socketRef.current.on('disconnect', () => setConnected(false));
     }
