@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const TaskForm = ({ initial, projectId, onSave, onClose }) => {
+  const { user } = useAuth();
+
   const [form, setForm] = useState(
     initial
       ? { title: initial.title, description: initial.description || '', dueDate: initial.dueDate ? initial.dueDate.slice(0, 10) : '', priority: initial.priority, status: initial.status, assignedTo: initial.assignedTo?._id || '' }
-      : { title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignedTo: '' }
+      // Standard users are auto-assigned to themselves; admins leave it unassigned by default
+      : { title: '', description: '', dueDate: '', priority: 'medium', status: 'todo', assignedTo: user?.role !== 'admin' ? (user?._id || '') : '' }
   );
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);

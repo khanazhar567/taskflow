@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   DndContext,
@@ -34,6 +34,9 @@ const ProjectDetail = () => {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
+  // Track IDs of tasks we just created ourselves so the socket echo doesn't add a duplicate
+  const pendingTaskIds = useRef(new Set());
+
   const loadData = useCallback(async () => {
     try {
       const [proj, taskList] = await Promise.all([
@@ -57,11 +60,12 @@ const ProjectDetail = () => {
     const offCreated = socket.on('task:created', (task) => {
       const projectId = String(task.project?._id || task.project);
       if (projectId !== String(id)) return;
-      setTasks((prev) => {
-        // If the creator already added it via handleCreate, skip to avoid duplicate
-        if (prev.some((t) => t._id === task._id)) return prev;
-        return [task, ...prev];
-      });
+      // If we created this task ourselves, handleCreate already added it — skip the echo
+      if (pendingTaskIds.current.has(task._id)) {
+        pendingTaskIds.current.delete(task._id);
+        return;
+      }
+      setTasks((prev) => [task, ...prev]);
     });
     const offUpdated = socket.on('task:updated', (task) => {
       setTasks((prev) => prev.map((t) => (t._id === task._id ? task : t)));
@@ -84,6 +88,8 @@ const ProjectDetail = () => {
 
   const handleCreate = async (form) => {
     const { data } = await api.post('/tasks', { ...form, project: id });
+    // Mark this ID so the socket echo is ignored
+    pendingTaskIds.current.add(data._id);
     setTasks((prev) => [data, ...prev]);
     toast.success('Task created');
   };

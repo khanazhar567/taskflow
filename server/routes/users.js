@@ -4,7 +4,7 @@ const { getUsers, updateUserRole, deleteUser } = require('../controllers/userCon
 const { protect } = require('../middleware/authMiddleware');
 const { admin } = require('../middleware/adminMiddleware');
 
-router.get('/', protect, admin, getUsers);
+router.get('/', protect, getUsers);
 router.patch('/:id/role', protect, admin, updateUserRole);
 router.delete('/:id', protect, admin, deleteUser);
 
