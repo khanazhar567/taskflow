@@ -57,8 +57,6 @@ const ProjectDetail = () => {
     const offCreated = socket.on('task:created', (task) => {
       const projectId = String(task.project?._id || task.project);
       if (projectId !== String(id)) return;
-      // Standard users only see tasks assigned to them
-      if (!isAdmin && task.assignedTo?._id !== user?._id) return;
       setTasks((prev) => {
         if (prev.some((t) => t._id === task._id)) return prev;
         return [task, ...prev];
@@ -81,7 +79,7 @@ const ProjectDetail = () => {
       offStatus?.();
       offDeleted?.();
     };
-  }, [socket, id, isAdmin, user?._id]);
+  }, [socket, id]);
 
   // DO NOT add to state here — the socket task:created event is the single
   // source of truth. The server emits before it sends the HTTP response, so

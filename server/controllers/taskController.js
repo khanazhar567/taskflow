@@ -31,10 +31,6 @@ const getTasks = async (req, res) => {
   try {
     const filter = {};
     if (req.query.project) filter.project = req.query.project;
-    // Standard users only see tasks assigned to them
-    if (req.user.role !== 'admin') {
-      filter.assignedTo = req.user._id;
-    }
     const tasks = await populateTask(Task.find(filter).sort({ createdAt: -1 }));
     res.json(tasks);
   } catch (error) {

@@ -120,15 +120,14 @@ describe('GET /api/tasks', () => {
     expect(res.body.length).toBe(2);
   });
 
-  it('standard user only sees their own assigned tasks', async () => {
+  it('standard user sees all tasks in the project', async () => {
     const res = await request(app)
       .get(`/api/tasks?project=${projectId}`)
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(res.status).toBe(200);
-    // User only created one task assigned to themselves
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].title).toBe('User Task');
+    // Standard users see all tasks — both admin-created and their own
+    expect(res.body.length).toBe(2);
   });
 });
 
