@@ -31,7 +31,7 @@ const navItems = [
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -40,13 +40,22 @@ const Sidebar = () => {
     navigate('/');
   };
 
-  return (
+  const sidebarContent = (
     <aside className="w-64 min-h-screen bg-slate-900 flex flex-col" role="navigation" aria-label="Main navigation">
-      {/* Logo */}
-      <div className="px-6 py-5 border-b border-slate-700">
+      {/* Logo + close button (mobile only) */}
+      <div className="px-6 py-5 border-b border-slate-700 flex items-center justify-between">
         <span className="text-white text-xl font-bold tracking-tight">
           Task<span className="text-indigo-400">Flow</span>
         </span>
+        <button
+          className="md:hidden text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+          onClick={onClose}
+          aria-label="Close navigation menu"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* Nav links */}
@@ -55,6 +64,7 @@ const Sidebar = () => {
           <NavLink
             key={to}
             to={to}
+            onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                 isActive
@@ -71,6 +81,7 @@ const Sidebar = () => {
         {user?.role === 'admin' && (
           <NavLink
             to="/admin"
+            onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                 isActive
@@ -111,6 +122,31 @@ const Sidebar = () => {
         </button>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop: always visible */}
+      <div className="hidden md:flex">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile: slide-in overlay */}
+      {isOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          {/* Dark backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          {/* Sidebar panel */}
+          <div className="relative z-50 flex">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
